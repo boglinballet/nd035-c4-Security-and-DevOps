@@ -3,6 +3,9 @@ package com.example.demo.controllers;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +29,9 @@ import com.example.demo.model.requests.CreateUserRequest;
 @RestController
 @RequestMapping("/api/user")
 public class UserController {
-	
+	public static final Logger logger = LoggerFactory.getLogger(UserController.class);
+
+
 	@Autowired
 	private UserRepository userRepository;
 	
@@ -40,36 +45,46 @@ public class UserController {
 
 	@GetMapping("/id/{id}")
 	public ResponseEntity<User> findById(@PathVariable Long id) {
+		logger.info("User searched for userId {}.", id);
 		return ResponseEntity.of(userRepository.findById(id));
 	}
 	
 	@GetMapping("/{username}")
 	public ResponseEntity<User> findByUserName(@PathVariable String username) {
 		User user = userRepository.findByUsername(username);
+
+		if (user == null){
+			logger.info("User searched for username {} but user not found.", username);
+		}else{
+			logger.info("User successfully searched for username {}.", username);
+		}
+
 		return user == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(user);
 	}
 	
 	@PostMapping("/create")
 	public ResponseEntity<User> createUser(@RequestBody CreateUserRequest createUserRequest) {
+		logger.debug("New request to create a user.");
 		User user = new User();
 		user.setUsername(createUserRequest.getUsername());
+		logger.debug("Username set to: {}.", createUserRequest.getUsername());
 		String password = createUserRequest.getPassword();
 		String passwordConfirm = createUserRequest.getConfirmPassword();
 		if(password == null || !password.matches(regex) || password.length() < 5 || !password.equals(passwordConfirm)){
+			logger.info("User passwords did not match or meet password criteria.");
 			return ResponseEntity.badRequest().build();
 		}
-
-		/*
-		if(password == null || password.length() < 5 || !password.equals(passwordConfirm)){
-			return ResponseEntity.badRequest().build();
-		}
-		 */
-
+		MDC.put("userName", (user.getUsername()));
 		user.setPassword(bCryptPasswordEncoder.encode(password));
+		logger.debug("Password successfully set.");
 		Cart cart = new Cart();
+		logger.debug("Cart created.");
 		cartRepository.save(cart);
+		logger.debug("Cart saved to cart repository.");
 		user.setCart(cart);
+		logger.debug("Cart saved to user.");
 		userRepository.save(user);
+		logger.info("User created with userId {}.", user.getId());
 		return ResponseEntity.ok(user);
 	}
 	
