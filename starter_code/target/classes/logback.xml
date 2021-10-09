@@ -1,0 +1,17 @@
+<!--For reference: https://www.tutorialspoint.com/spring_boot/spring_boot_logging.htm -->
+<configuration>
+    <!-- Alternative set up
+    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+        <file>securityAndDevops.log</file>
+    </appender>
+    -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>###LOGBACK##: %X{userName} %d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="debug">
+        <appender-ref ref="STDOUT" />
+    </root>
+</configuration>
