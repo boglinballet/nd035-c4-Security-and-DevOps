@@ -24,25 +24,25 @@ public class ItemController {
 	
 	@GetMapping
 	public ResponseEntity<List<Item>> getItems() {
-		logger.info("User requested list of all items.");
+		logger.info("User entered endpoint /api/item/");
 		return ResponseEntity.ok(itemRepository.findAll());
 	}
 	
 	@GetMapping("/{id}")
 	public ResponseEntity<Item> getItemById(@PathVariable Long id) {
-		logger.info("User requested data for item id {}.", id);
+		logger.info("User entered endpoint /api/item/{}", id);
 		return ResponseEntity.of(itemRepository.findById(id));
 	}
 	
 	@GetMapping("/name/{name}")
 	public ResponseEntity<List<Item>> getItemsByName(@PathVariable String name) {
-		logger.info("User requested information about item {}.", name);
+		logger.info("User entered endpoint /api/item/name/{}", name);
 		List<Item> items = itemRepository.findByName(name);
 
 		if (items == null || items.isEmpty()) {
-			logger.info("No items found under name {}.", name);
+			logger.info("getItemsByName failure: No items found under name {}", name);
 		}else{
-			logger.info("User found {} items under name {}.", items.size(), name);
+			logger.info("getItemsByName success: User found {} items under name {}", items.size(), name);
 		}
 
 		return items == null || items.isEmpty() ? ResponseEntity.notFound().build()

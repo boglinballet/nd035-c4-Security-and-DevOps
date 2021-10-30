@@ -33,30 +33,30 @@ public class OrderController {
 	
 	@PostMapping("/submit/{username}")
 	public ResponseEntity<UserOrder> submit(@PathVariable String username) {
-		logger.debug("User wants to submit an order for username {}.", username);
+		logger.debug("User entered endpoint /api/order/submit/{}", username);
 		User user = userRepository.findByUsername(username);
 		if(user == null) {
-			logger.info("User entered invalid username {}.", username);
+			logger.info("submit failure: User entered invalid username {}", username);
 			return ResponseEntity.notFound().build();
 		}
 		MDC.put("userName", (user.getUsername()));
 		UserOrder order = UserOrder.createFromCart(user.getCart());
 		logger.debug("Order created from user cart.");
 		orderRepository.save(order);
-		logger.info("OrderId {} created for userId {}.", order.getId(), + user.getId());
+		logger.info("submit success: OrderId {} created for userId {}", order.getId(), + user.getId());
 		return ResponseEntity.ok(order);
 	}
 	
 	@GetMapping("/history/{username}")
 	public ResponseEntity<List<UserOrder>> getOrdersForUser(@PathVariable String username) {
-		logger.debug("User wants to get order history for username {}.", username);
+		logger.debug("User entered endpoint /api/order/history/{}.", username);
 		User user = userRepository.findByUsername(username);
 		if(user == null) {
-			logger.info("User entered an invalid username: {}.", username);
+			logger.info("getOrdersForUser failure: User entered invalid username {}", username);
 			return ResponseEntity.notFound().build();
 		}
 		MDC.put("userName", (user.getUsername()));
-		logger.info("Order history returned for userId {}.", user.getId());
+		logger.info("getOrdersForUser success: Order history returned for userId {}", user.getId());
 		return ResponseEntity.ok(orderRepository.findByUser(user));
 	}
 }

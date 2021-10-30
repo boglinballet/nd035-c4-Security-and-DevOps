@@ -59,8 +59,43 @@ public class UserControllerTest {
         assertEquals("thisIsHashed.", user.getPassword());
     }
 
+    // Negative test case (password doesn't fit criteria)
     @Test
-    public void verifyFindUserById(){
+    public void createUserSadPath() throws Exception{
+        // Password fulfills regex, but too short
+        CreateUserRequest r = new CreateUserRequest();
+        r.setUsername("NormaShort");
+        r.setPassword("aA1.");
+        r.setConfirmPassword("aA1.");
+        final ResponseEntity<User> response1 = userController.createUser(r);
+        assertNotNull(response1);
+        assertEquals(400, response1.getStatusCodeValue());
+
+        // Password long enough but doesn't fulfill regex
+        r.setPassword("AaBbC");
+        r.setConfirmPassword("AaBbC");
+        final ResponseEntity<User> response2 = userController.createUser(r);
+        assertNotNull(response2);
+        assertEquals(400, response2.getStatusCodeValue());
+
+        // Password null
+        r.setPassword(null);
+        r.setConfirmPassword(null);
+        final ResponseEntity<User> response3 = userController.createUser(r);
+        assertNotNull(response3);
+        assertEquals(400, response3.getStatusCodeValue());
+
+        // Password doesn't match confirm password
+        r.setPassword("AaBb1.");
+        r.setConfirmPassword("AaBb2.");
+        final ResponseEntity<User> response4 = userController.createUser(r);
+        assertNotNull(response4);
+        assertEquals(400, response4.getStatusCodeValue());
+    }
+
+    // Positive test case: user can be found by ID
+    @Test
+    public void verifyFindUserByIdPositive(){
         User userExpected = new User();
         userExpected.setUsername("spooky");
         userExpected.setId(1L);
@@ -77,8 +112,18 @@ public class UserControllerTest {
         assertEquals("spooky", userActual.getUsername());
     }
 
+    // Negative test case: user cannot be found by ID
     @Test
-    public void verifyFindByUsername(){
+    public void verifyFindUserByIdNegative(){
+        when(userRepository.findById(1L)).thenReturn(Optional.empty());
+        ResponseEntity<User> responseActual = userController.findById(1L);
+        assertNotNull(responseActual);
+        assertEquals(404, responseActual.getStatusCodeValue());
+    }
+
+    // Positive test case: user can be found by username
+    @Test
+    public void verifyFindByUsernameHappy(){
         User userExpected = new User();
         userExpected.setUsername("daisy");
 
@@ -90,5 +135,15 @@ public class UserControllerTest {
         User userActual = responseActual.getBody();
         assertNotNull(userActual);
         assertEquals(userExpected, userActual);
+    }
+
+    // Negative test case: user cannot be found by username
+    @Test
+    public void verifyFindByUsernameSad(){
+        String username = "Cheese Ball";
+        when(userRepository.findByUsername(username)).thenReturn(null);
+        ResponseEntity<User> responseActual = userController.findByUserName(username);
+        assertNotNull(responseActual);
+        assertEquals(404, responseActual.getStatusCodeValue());
     }
 }

@@ -45,18 +45,27 @@ public class UserController {
 
 	@GetMapping("/id/{id}")
 	public ResponseEntity<User> findById(@PathVariable Long id) {
-		logger.info("User searched for userId {}.", id);
-		return ResponseEntity.of(userRepository.findById(id));
+		logger.info("User entered endpoint /api/user/id/{}", id);
+		ResponseEntity<User> response = ResponseEntity.of(userRepository.findById(id));
+
+		if (response.getStatusCodeValue() == 200){
+			logger.info("findById {}: Success", id);
+		}else{
+			logger.info("findById {}: Failure", id);
+		}
+
+		return response;
 	}
 	
 	@GetMapping("/{username}")
 	public ResponseEntity<User> findByUserName(@PathVariable String username) {
+		logger.info("User entered endpoint /api/user/{}", username);
 		User user = userRepository.findByUsername(username);
 
 		if (user == null){
-			logger.info("User searched for username {} but user not found.", username);
+			logger.info("findByUserName {}: Success", username);
 		}else{
-			logger.info("User successfully searched for username {}.", username);
+			logger.info("findByUserName {}: Failure", username);
 		}
 
 		return user == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(user);
@@ -64,14 +73,14 @@ public class UserController {
 	
 	@PostMapping("/create")
 	public ResponseEntity<User> createUser(@RequestBody CreateUserRequest createUserRequest) {
-		logger.debug("New request to create a user.");
+		logger.debug("User entered endpoint /api/user/create");
 		User user = new User();
 		user.setUsername(createUserRequest.getUsername());
 		logger.debug("Username set to: {}.", createUserRequest.getUsername());
 		String password = createUserRequest.getPassword();
 		String passwordConfirm = createUserRequest.getConfirmPassword();
 		if(password == null || !password.matches(regex) || password.length() < 5 || !password.equals(passwordConfirm)){
-			logger.info("User passwords did not match or meet password criteria.");
+			logger.info("createUser failure: User passwords did not match or meet password criteria.");
 			return ResponseEntity.badRequest().build();
 		}
 		MDC.put("userName", (user.getUsername()));
@@ -84,7 +93,7 @@ public class UserController {
 		user.setCart(cart);
 		logger.debug("Cart saved to user.");
 		userRepository.save(user);
-		logger.info("User created with userId {}.", user.getId());
+		logger.info("createUser success: User {} created with userId {}.", user.getUsername(), user.getId());
 		return ResponseEntity.ok(user);
 	}
 	
