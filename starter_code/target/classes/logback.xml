@@ -1,7 +1,7 @@
 <!--For reference: https://www.tutorialspoint.com/spring_boot/spring_boot_logging.htm -->
 <configuration>
     <appender name="FILE" class="ch.qos.logback.core.FileAppender">
-        <file>securityAndDevops.log</file>
+        <file>nd035-c4-Security-and-DevOps/starter_code/logs/securityAndDevops.log</file>
         <encoder>
             <pattern>###LOGBACK##: %X{userName} %d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>

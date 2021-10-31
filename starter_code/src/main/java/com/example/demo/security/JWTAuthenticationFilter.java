@@ -1,4 +1,4 @@
-package com.example.security;
+package com.example.demo.security;
 
 import com.auth0.jwt.JWT;
 import com.example.demo.model.persistence.User;
@@ -43,7 +43,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     @Override
     protected void successfulAuthentication(HttpServletRequest req, HttpServletResponse res, FilterChain chain,
-                                            Authentication auth) throws IOException, ServletException{
+                                            Authentication auth) throws IOException, ServletException {
         String token = JWT.create()
                 .withSubject(((org.springframework.security.core.userdetails.User) auth.getPrincipal()).getUsername())
                 .withExpiresAt(new Date(System.currentTimeMillis() + SecurityConstants.EXPIRATION_TIME))
